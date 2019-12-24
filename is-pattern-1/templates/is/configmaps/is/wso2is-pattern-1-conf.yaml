@@ -15,19 +15,16 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: identity-server-conf-datasources
+  name: wso2is-pattern-1-conf
   namespace : {{ .Release.Namespace }}
 data:
-  # generate connection URLs based on the DBMS type
-  {{- $bps_dburl := "" }}
-  {{- $identity_dburl := "" }}
+  {{- $hostname := .Release.Name }}
+  # generate connection URL of shared database based on the DBMS type
   {{- $shared_dburl := "" }}
   # set relevant DBMS driver class name
   {{- $db_driver_class_name := "" }}
 
   {{- if and .Values.wso2.deployment.db.type (eq .Values.wso2.deployment.db.type "postgresql") }}
-    {{- $bps_dburl = printf "%s%s%s%s%s%s%s%s" "jdbc:" .Values.wso2.deployment.db.type "://" .Values.wso2.deployment.db.host ":" .Values.wso2.deployment.db.port "/" .Values.wso2.deployment.db.bpsDB }}
-    {{- $identity_dburl = printf "%s%s%s%s%s%s%s%s" "jdbc:" .Values.wso2.deployment.db.type "://" .Values.wso2.deployment.db.host ":" .Values.wso2.deployment.db.port "/" .Values.wso2.deployment.db.identityDB }}
     {{- $shared_dburl = printf "%s%s%s%s%s%s%s%s" "jdbc:" .Values.wso2.deployment.db.type "://" .Values.wso2.deployment.db.host ":" .Values.wso2.deployment.db.port "/" .Values.wso2.deployment.db.sharedDB }}
     # set relevant DBMS driver class name
     {{- $db_driver_class_name = "org.postgresql.Driver" }}
@@ -39,12 +36,12 @@ data:
   {{- $db_password := .Values.wso2.deployment.db.password }}
 
   {{- $file := .Files }}
-  {{- range $path, $byte := .Files.Glob "confs/datasources/*" }}
+  {{- range $path, $byte := .Files.Glob "confs/is/repository/conf/*" }}
   {{- $list := $path | splitList "/"}}
   {{- $length := len $list }}
   {{- $last := add $length -1 }}
   {{ index $list $last }}: |-
     {{- range $line := $file.Lines $path }}
-      {{ $line | replace "{{ DB_USERNAME }}" $db_username | replace "{{ DB_PASSWORD }}" $db_password | replace "{{ SHARED_DB_URL }}" $shared_dburl  | replace "{{ IDENTITY_DB_URL }}" $identity_dburl | replace "{{ BPS_DB_URL }}" $bps_dburl | replace "{{ DRIVER_CLASSNAME }}" $db_driver_class_name }}
+      {{ $line | replace "{{ HOSTNAME }}" $hostname | replace "{{ DB_USERNAME }}" $db_username | replace "{{ DB_PASSWORD }}" $db_password | replace "{{ SHARED_DB_URL }}" $shared_dburl | replace "{{ DRIVER_CLASSNAME }}" $db_driver_class_name }}
     {{- end }}
   {{- end }}

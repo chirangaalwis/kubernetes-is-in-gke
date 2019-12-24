@@ -1,4 +1,4 @@
-# Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+# Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,18 @@
 # limitations under the License.
 
 apiVersion: v1
-kind: ServiceAccount
+kind: ConfigMap
 metadata:
-  name: {{ .Values.kubernetes.svcaccount }}
+  name: wso2is-pattern-1-jaggery-portal
   namespace : {{ .Release.Namespace }}
+data:
+  {{- $file := .Files }}
+  {{- range $path, $byte := .Files.Glob "confs/is/repository/deployment/server/jaggeryapps/portal/conf/*" }}
+  {{- $list := $path | splitList "/"}}
+  {{- $length := len $list }}
+  {{- $last := add $length -1 }}
+  {{ index $list $last }}: |-
+    {{- range $file.Lines $path }}
+      {{ . }}
+    {{- end }}
+  {{- end }}

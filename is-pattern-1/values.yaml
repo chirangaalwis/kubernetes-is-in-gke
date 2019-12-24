@@ -33,11 +33,9 @@ wso2:
       # If a custom image must be used, uncomment 'dockerRegistry' and provide its value.
       dockerRegistry: "gcr.io/research-n-development-209206"
       imageName: "wso2is"
-      imageTag: "5.8.0-postgresql"
+      imageTag: "5.8.0-postgresql-ksm1.7.0"
       # Number of deployment replicas
       replicas: 1
-      # Minimum number of seconds for which a newly created pod should be ready without any of its containers crashing, for it to be considered available.
-      minReadySeconds: 30
       strategy:
         rollingUpdate:
           # The maximum number of pods that can be scheduled above the desired number of pods.
@@ -90,14 +88,14 @@ wso2:
     enabled: false
     prometheus:
       serviceMonitor:
-          # If the black box exporter is deployed in a different Namespace
-#          blackBoxNamespace:
-          # Prometheus Operator labels to identify Service monitors
-          labels:
-            release: monitoring
+        # If the black box exporter is deployed in a different Namespace
+        #          blackBoxNamespace:
+        # Prometheus Operator labels to identify Service monitors
+        labels:
+          release: monitoring
       # Job name of the JMX events
       jmxJobName: "jmx"
 
 kubernetes:
   # Name of Kubernetes service account
-  svcaccount: "wso2svc-account"
+  serviceAccount: "wso2svc-account"
