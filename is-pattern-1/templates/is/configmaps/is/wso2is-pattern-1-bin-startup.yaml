@@ -15,11 +15,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: identity-server-shindig-properties
+  name: wso2is-pattern-1-bin-startup
   namespace : {{ .Release.Namespace }}
 data:
   {{- $file := .Files }}
-  {{- range $path, $byte := .Files.Glob "confs/deployment/server/webapps/shindig/WEB-INF/classes/*" }}
+  {{- range $path, $byte := .Files.Glob "confs/is/bin/*" }}
   {{- $list := $path | splitList "/"}}
   {{- $length := len $list }}
   {{- $last := add $length -1 }}

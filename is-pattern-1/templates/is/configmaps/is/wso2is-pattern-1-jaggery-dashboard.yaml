@@ -15,11 +15,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: identity-server-dashboard
+  name: wso2is-pattern-1-jaggery-dashboard
   namespace : {{ .Release.Namespace }}
 data:
   {{- $file := .Files }}
-  {{- range $path, $byte := .Files.Glob "confs/deployment/server/jaggeryapps/dashboard/conf/*" }}
+  {{- range $path, $byte := .Files.Glob "confs/is/repository/deployment/server/jaggeryapps/dashboard/conf/*" }}
   {{- $list := $path | splitList "/"}}
   {{- $length := len $list }}
   {{- $last := add $length -1 }}

@@ -15,16 +15,16 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: identity-server-conf-tomcat
+  name: wso2is-pattern-1-conf-identity
   namespace : {{ .Release.Namespace }}
 data:
   {{- $file := .Files }}
-  {{- range $path, $byte := .Files.Glob "confs/tomcat/*" }}
+  {{- range $path, $byte := .Files.Glob "confs/is/repository/conf/identity/*" }}
   {{- $list := $path | splitList "/"}}
   {{- $length := len $list }}
   {{- $last := add $length -1 }}
   {{ index $list $last }}: |-
     {{- range $file.Lines $path }}
-    {{ . }}
+      {{ . }}
     {{- end }}
   {{- end }}
