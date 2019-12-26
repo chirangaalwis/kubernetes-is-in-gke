@@ -314,6 +314,7 @@ do
     -Dcom.ibm.cacheLocalHost=true \
     -DworkerNode=false \
     -DenableCorrelationLogs=false \
+    -javaagent:/home/wso2carbon/prometheus/jmx_prometheus_javaagent-0.12.0.jar=2222:/home/wso2carbon/prometheus/config.yaml \
     -Dorg.apache.xml.security.ignoreLineBreaks=false \
     org.wso2.carbon.bootstrap.Bootstrap $*
     status=$?

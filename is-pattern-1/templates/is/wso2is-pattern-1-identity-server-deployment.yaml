@@ -151,15 +151,20 @@ spec:
             - name: wso2is-pattern-1-entrypoint
               mountPath: /home/wso2carbon/entrypoint.sh
               subPath: docker-entrypoint.sh
-          {{ if .Values.wso2.monitoring.enabled }}
-          - name: shared-prometheus-jmx-jar
-            mountPath: /home/wso2carbon/prometheus
-          - name: identity-server-prometheus-exporter-conf
-            mountPath: /home/wso2carbon/prometheus/config.yaml
-            subPath: config.yaml
-          - name: wso2is-pattern-1-bin-startup
-            mountPath: /home/wso2carbon/wso2-config-volume/bin
-          {{ end }}
+            {{ if .Values.wso2.monitoring.enabled }}
+            - name: shared-prometheus-jmx-jar
+              mountPath: /home/wso2carbon/prometheus
+            - name: identity-server-prometheus-exporter-conf
+              mountPath: /home/wso2carbon/prometheus/config.yaml
+              subPath: config.yaml
+            - name: wso2is-pattern-1-bin-startup
+              mountPath: /home/wso2carbon/wso2-config-volume/bin/wso2server.sh
+              subPath: wso2server-for-prometheus.sh
+            {{ else }}
+            - name: wso2is-pattern-1-bin-startup
+              mountPath: /home/wso2carbon/wso2-config-volume/bin/wso2server.sh
+              subPath: wso2server.sh
+            {{ end }}
       {{ if .Values.wso2.centralizedLogging.enabled }}
       - name: shared-logs
         mountPath: /home/wso2carbon/wso2is-5.8.0/repository/logs/
@@ -205,6 +210,9 @@ spec:
         - name: wso2is-pattern-1-wso2-private-registry-creds
       {{ end }}
       volumes:
+        - name: wso2is-pattern-1-bin-startup
+          configMap:
+            name: wso2is-pattern-1-bin-startup
         - name: wso2is-pattern-1-conf
           configMap:
             name: wso2is-pattern-1-conf
@@ -257,7 +265,4 @@ spec:
         - name: identity-server-prometheus-exporter-conf
           configMap:
             name: identity-server-prometheus-exporter-conf
-        - name: wso2is-pattern-1-bin-startup
-          configMap:
-            name: wso2is-pattern-1-bin-startup
       {{ end }}
