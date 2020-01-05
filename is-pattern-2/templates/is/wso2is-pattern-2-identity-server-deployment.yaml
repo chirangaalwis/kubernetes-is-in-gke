@@ -1,0 +1,294 @@
+# Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}-identity-server-deployment
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.wso2.deployment.wso2is.replicas }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.wso2.deployment.wso2is.strategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.wso2.deployment.wso2is.strategy.rollingUpdate.maxUnavailable }}
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      deployment: wso2is
+      app: is-pattern-2
+      monitoring: {{ .Values.wso2.monitoring.prometheus.jmxJobName }}
+  template:
+    metadata:
+      labels:
+        deployment: wso2is
+        app: is-pattern-2
+        monitoring: {{ .Values.wso2.monitoring.prometheus.jmxJobName }}
+    spec:
+      initContainers:
+      {{- if and .Values.wso2.deployment.db.host (.Values.wso2.deployment.db.port) }}
+      - name: init-iam-db
+        image: busybox:1.31
+        command: ['sh', '-c', 'echo -e "Checking for the availability of DBMS service"; while ! nc -z {{ .Values.wso2.deployment.db.host }} {{ .Values.wso2.deployment.db.port }}; do sleep 1; printf "-"; done; echo -e "  >> DBMS service is available";']
+      {{- end }}
+
+      - name: init-analytics-1
+        image: busybox:1.31
+        command: ['sh', '-c', 'echo -e "Checking for the availability of Analytics Server 1 deployment"; while ! nc -z {{ template "fullname" . }}-analytics-worker-1-service 9091; do sleep 1; printf "-"; done; echo -e "  >> Analytics Server 1 has started";']
+      - name: init-analytics-2
+        image: busybox:1.31
+        command: ['sh', '-c', 'echo -e "Checking for the availability of Analytics Server 2 deployment"; while ! nc -z {{ template "fullname" . }}-analytics-worker-2-service 9091; do sleep 1; printf "-"; done; echo -e "  >> Analytics Server 2 has started";']
+
+      {{ if .Values.wso2.centralizedLogging.enabled }}
+      - name: init-logstash-plugins-install
+        image: docker.elastic.co/logstash/logstash:{{ .Values.wso2.centralizedLogging.logstash.imageTag }}
+        command:
+          - /bin/bash
+          - "-c"
+          - |
+            set -e
+            ./bin/logstash-plugin install logstash-codec-multiline logstash-filter-grok
+        volumeMounts:
+          - name: shared-plugins
+            mountPath: /usr/share/logstash/plugins/
+      - name: init-elasticsearch
+        image: busybox:1.31
+        command: ['sh', '-c', 'echo -e "Checking for the availability of Elasticsearch Server deployment"; while ! nc -z {{ .Values.wso2.centralizedLogging.logstash.elasticsearch.host }} 9200; do sleep 1; printf "-"; done; echo -e "  >> Elasticsearch server has started";']
+      {{ end }}
+
+      {{ if .Values.wso2.monitoring.enabled }}
+      - name: init-jmx-exporter
+        image: busybox:1.31
+        command:
+          - /bin/sh
+          - "-c"
+          - |
+            set -e
+            wget https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.12.0/jmx_prometheus_javaagent-0.12.0.jar -P /jmx-jar/
+        volumeMounts:
+          - name: shared-prometheus-jmx-jar
+            mountPath: /jmx-jar
+      {{ end }}
+
+      containers:
+      - name: wso2is
+        {{ if .Values.wso2.deployment.wso2is.dockerRegistry }}
+        image: {{ .Values.wso2.deployment.wso2is.dockerRegistry }}/{{ .Values.wso2.deployment.wso2is.imageName }}
+        {{- $tag := .Values.wso2.deployment.wso2is.imageTag }}
+        {{- if not (eq $tag "") }}{{- printf ":%s" $tag -}}{{- end }}
+        {{ else if or (eq .Values.wso2.subscription.username "") (eq .Values.wso2.subscription.password "") }}
+        image: wso2/{{ .Values.wso2.deployment.wso2is.imageName }}:{{ .Values.wso2.deployment.wso2is.imageTag }}
+        {{ else }}
+        image: docker.wso2.com/{{ .Values.wso2.deployment.wso2is.imageName }}:{{ .Values.wso2.deployment.wso2is.imageTag }}
+        {{ end }}
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - nc -z localhost 9443
+          initialDelaySeconds: {{ .Values.wso2.deployment.wso2is.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.wso2.deployment.wso2is.livenessProbe.periodSeconds }}
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - nc -z localhost 9443
+          initialDelaySeconds: {{ .Values.wso2.deployment.wso2is.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.wso2.deployment.wso2is.readinessProbe.periodSeconds }}
+        imagePullPolicy: {{ .Values.wso2.deployment.wso2is.imagePullPolicy }}
+        command: ["/home/wso2carbon/entrypoint.sh"]
+        resources:
+          requests:
+            memory: {{ .Values.wso2.deployment.wso2is.resources.requests.memory }}
+            cpu: {{ .Values.wso2.deployment.wso2is.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.wso2.deployment.wso2is.resources.limits.memory }}
+            cpu: {{ .Values.wso2.deployment.wso2is.resources.limits.cpu }}
+        lifecycle:
+          preStop:
+            exec:
+              command:  ['sh', '-c', '${WSO2_SERVER_HOME}/bin/wso2server.sh stop']
+        securityContext:
+          runAsUser: 802
+        env:
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        ports:
+        - containerPort: 9763
+          protocol: TCP
+        - containerPort: 9443
+          protocol: TCP
+        {{ if .Values.wso2.monitoring.enabled }}
+        - containerPort: 2222
+          protocol: TCP
+          name: metrics
+        {{ end }}
+        volumeMounts:
+        - name: wso2is-pattern-2-conf
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/conf
+        - name: wso2is-pattern-2-conf-axis2
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/conf/axis2
+        - name: wso2is-pattern-2-conf-datasources
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/conf/datasources
+        - name: wso2is-pattern-2-conf-identity
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/conf/identity
+        - name: wso2is-pattern-2-conf-tomcat
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/conf/tomcat
+        - name: wso2is-pattern-2-conf-tomcat-carbon-web
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/conf/tomcat/carbon/WEB-INF
+        - name: wso2is-pattern-2-conf-event-publishers
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/deployment/server/eventpublishers
+        - name: wso2is-pattern-2-jaggery-dashboard
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/deployment/server/jaggeryapps/dashboard/conf
+        - name: wso2is-pattern-2-jaggery-portal
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/deployment/server/jaggeryapps/portal/conf
+        - name: wso2is-pattern-2-webapps-shindig-properties
+          mountPath: /home/wso2carbon/wso2-config-volume/repository/deployment/server/webapps/shindig/WEB-INF/classes
+        - name: wso2is-pattern-2-entrypoint
+          mountPath: /home/wso2carbon/entrypoint.sh
+          subPath: docker-entrypoint.sh
+        {{ if .Values.wso2.monitoring.enabled }}
+        - name: shared-prometheus-jmx-jar
+          mountPath: /home/wso2carbon/prometheus
+        - name: identity-server-prometheus-exporter-conf
+          mountPath: /home/wso2carbon/prometheus/config.yaml
+          subPath: config.yaml
+        - name: wso2is-pattern-2-bin-startup
+          mountPath: /home/wso2carbon/wso2-config-volume/bin/wso2server.sh
+          subPath: wso2server-for-prometheus.sh
+        {{ else }}
+        - name: wso2is-pattern-2-bin-startup
+          mountPath: /home/wso2carbon/wso2-config-volume/bin/wso2server.sh
+          subPath: wso2server.sh
+        {{ end }}
+      {{ if .Values.wso2.centralizedLogging.enabled }}
+          - name: shared-logs
+            mountPath: /home/wso2carbon/wso2is-5.8.0/repository/logs/
+      - name: wso2is-logstash
+        image: docker.elastic.co/logstash/logstash:{{ .Values.wso2.centralizedLogging.logstash.imageTag }}
+        volumeMounts:
+          - name: shared-logs
+            mountPath: /usr/share/logstash/wso2-logs/
+          - name: logstash-yml
+            mountPath: /usr/share/logstash/config/logstash.yml
+            subPath: logstash.yml
+          - name: c4-logstash-conf
+            mountPath: /usr/share/logstash/pipeline/logstash.conf
+            subPath: logstash.conf
+          - name: shared-plugins
+            mountPath: /usr/share/logstash/plugins/
+        env:
+          - name: NODE_ID
+            value: {{ .Release.Name }}-is-node
+          - name: NODE_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: ELASTICSEARCH_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: logstash-elasticsearch-creds
+                key: username
+          - name: ELASTICSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: logstash-elasticsearch-creds
+                key: password
+          - name: ELASTICSEARCH_HOST
+            value: {{ .Values.wso2.centralizedLogging.logstash.elasticsearch.host }}
+      {{ end }}
+#      - name: cloudsql-proxy
+#        image: gcr.io/cloudsql-docker/gce-proxy:1.11
+#        command: ["/cloud_sql_proxy",
+#                  "-instances=<INSTANCE_CONNECTION_NAME>=tcp:5432",
+#                  "-credential_file=/secrets/cloudsql/credentials.json"]
+#        volumeMounts:
+#          - name: cloudsql-instance-credentials
+#            mountPath: /secrets/cloudsql
+#            readOnly: true
+      serviceAccountName: {{ .Values.kubernetes.serviceAccount }}
+      {{- if .Values.wso2.deployment.wso2is.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.wso2.deployment.wso2is.imagePullSecrets }}
+      {{- else if and (not (eq .Values.wso2.subscription.username "")) (not (eq .Values.wso2.subscription.password "")) }}
+      imagePullSecrets:
+      - name: {{ template "fullname" . }}-wso2-private-registry-creds
+      {{ end }}
+      volumes:
+#      - name: cloudsql-instance-credentials
+#        secret:
+#          secretName: cloudsql-instance-credentials
+      - name: wso2is-pattern-2-bin-startup
+        configMap:
+          name: {{ template "fullname" . }}-bin-startup
+      - name: wso2is-pattern-2-conf
+        configMap:
+          name: {{ template "fullname" . }}-conf
+      - name: wso2is-pattern-2-conf-axis2
+        configMap:
+          name: {{ template "fullname" . }}-conf-axis2
+      - name: wso2is-pattern-2-conf-datasources
+        configMap:
+          name: {{ template "fullname" . }}-conf-datasources
+      - name: wso2is-pattern-2-conf-identity
+        configMap:
+          name: {{ template "fullname" . }}-conf-identity
+      - name: wso2is-pattern-2-conf-tomcat
+        configMap:
+          name: {{ template "fullname" . }}-conf-tomcat
+      - name: wso2is-pattern-2-conf-tomcat-carbon-web
+        configMap:
+          name: {{ template "fullname" . }}-conf-tomcat-carbon-web
+      - name: wso2is-pattern-2-conf-event-publishers
+        configMap:
+          name: {{ template "fullname" . }}-conf-event-publishers
+      - name: wso2is-pattern-2-jaggery-dashboard
+        configMap:
+          name: {{ template "fullname" . }}-jaggery-dashboard
+      - name: wso2is-pattern-2-jaggery-portal
+        configMap:
+          name: {{ template "fullname" . }}-jaggery-portal
+      - name: wso2is-pattern-2-webapps-shindig-properties
+        configMap:
+          name: {{ template "fullname" . }}-webapps-shindig-properties
+      - name: wso2is-pattern-2-entrypoint
+        configMap:
+          name: {{ template "fullname" . }}-identity-server-entrypoint
+          defaultMode: 0407
+      {{ if .Values.wso2.centralizedLogging.enabled }}
+      - name: shared-logs
+        emptyDir: {}
+      - name: logstash-yml
+        configMap:
+          name: logstash-yml
+      - name: c4-logstash-conf
+        configMap:
+          name: c4-logstash-conf
+      - name: shared-plugins
+        emptyDir: {}
+      - name: logstash-elasticsearch-creds
+        secret:
+          secretName: logstash-elasticsearch-creds
+      {{ end }}
+      {{ if .Values.wso2.monitoring.enabled }}
+      - name: shared-prometheus-jmx-jar
+        emptyDir: {}
+      - name: identity-server-prometheus-exporter-conf
+        configMap:
+          name: identity-server-prometheus-exporter-conf
+      {{ end }}
