@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------
 #
-# Copyright 2017 WSO2, Inc. (http://wso2.com)
+# Copyright 2019 WSO2, Inc. (http://wso2.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 # ------------------------------------------------------------------------
 
 # set base Docker image to latest WSO2 Identity Server version 5.8.0 Docker image from WSO2's Private Docker Registry
-FROM docker.wso2.com/wso2is:5.8.0
+FROM docker.wso2.com/wso2is-analytics-dashboard:5.8.0
 
 # build arguments for external artifacts
 ARG POSTGRESQL_CONNECTOR_VERSION=9.4.1212
 
 # add PostgreSQL JDBC connector to server home as a third party library
-ADD --chown=wso2carbon:wso2 https://jdbc.postgresql.org/download/postgresql-${POSTGRESQL_CONNECTOR_VERSION}.jar ${WSO2_SERVER_HOME}/repository/components/dropins/
+ADD --chown=wso2carbon:wso2 https://jdbc.postgresql.org/download/postgresql-${POSTGRESQL_CONNECTOR_VERSION}.jar ${WSO2_SERVER_HOME}/lib/
