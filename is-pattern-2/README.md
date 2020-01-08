@@ -8,41 +8,34 @@
 ## Prerequisites
 
 * In order to use WSO2 Helm resources, you need an active WSO2 subscription. If you do not possess an active WSO2
-  subscription already, you can sign up for a WSO2 Free Trial Subscription from [here](https://wso2.com/free-trial-subscription)
-  . Otherwise you can proceed with docker images which are created using GA releases.<br><br>
-
-* Install [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git), [Helm](https://github.com/kubernetes/helm/blob/master/docs/install.md)
-(and Tiller) and [Kubernetes client](https://kubernetes.io/docs/tasks/tools/install-kubectl/) (compatible with v1.10) in order to run the 
-steps provided in the following quick start guide.<br><br>
-
+  subscription already, you can sign up for a WSO2 Free Trial Subscription from [here](https://wso2.com/free-trial-subscription).
+  Otherwise you can proceed with docker images which are created using GA releases.<br><br>
+  
 * An already setup [Kubernetes cluster](https://kubernetes.io/docs/setup).<br><br>
 
-* Install [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/deploy/).Please note that Helm resources for WSO2 product
-deployment patterns are compatible with NGINX Ingress Controller Git release [`nginx-0.22.0`](https://github.com/kubernetes/ingress-nginx/releases/tag/nginx-0.22.0).
+* Install [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git), [Helm](https://helm.sh/docs/intro/install/) and
+[Kubernetes client](https://kubernetes.io/docs/tasks/tools/install-kubectl/), in order to run the steps provided in the following quick start guide.<br><br>
 
-* Add the WSO2 Helm chart repository
-```
- helm repo add wso2 https://helm.wso2.com && helm repo update
-```
-  
+* Install [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/deploy/).
+
 ## Quick Start Guide
->In the context of this document, <br>
->* `KUBERNETES_HOME` will refer to a local copy of the [`wso2/kubernetes-is`](https://github.com/wso2/kubernetes-is/)
-Git repository. <br>
->* `HELM_HOME` will refer to `<KUBERNETES_HOME>/advanced/helm/`. <br>
 
-##### 1. Clone the Kubernetes Resources for WSO2 Identity Server Git repository.
+>In the context of this document, <br>
+>* `RESOURCE_HOME` will refer to a local copy of the [`chirangaalwis/kubernetes-is-in-gke`](https://github.com/chirangaalwis/kubernetes-is-in-gke)
+Git repository.<br>
+
+##### 1. Clone the Helm Resources for WSO2 Identity Server Git repository.
 
 ```
-git clone https://github.com/wso2/kubernetes-is.git
+https://github.com/chirangaalwis/kubernetes-is-in-gke
 ```
 
 ##### 2. Provide configurations.
 
-a. The default product configurations are available at `<HELM_HOME>/is-pattern-2/confs` folder. Change the
+a. The default product configurations are available at `<RESOURCE_HOME>/is-pattern-2/confs` folder. Change the
 configurations as necessary.
 
-b. Open the `<HELM_HOME>/is-pattern-2/values.yaml` and provide the following values. 
+b. Open the `<RESOURCE_HOME>/is-pattern-2/values.yaml` and provide the following values. 
 
 ###### MySQL Configurations
 
@@ -168,7 +161,7 @@ based Performance Analysis and Resource recommendations and tune the limits acco
 ##### 3. Deploy WSO2 Identity Server with WSO2 Identity Server Analytics.
 
 ```
-helm install --dep-up --name <RELEASE_NAME> <HELM_HOME>/is-pattern-2 --namespace <NAMESPACE>
+helm install --dep-up --name <RELEASE_NAME> <RESOURCE_HOME>/is-pattern-2 --namespace <NAMESPACE>
 ```
 
 `NAMESPACE` should be the Kubernetes Namespace in which the resources are deployed

@@ -22,7 +22,7 @@ data:
   {{- $fullname := include "fullname" . }}
   {{- $analyticsWorkerService1 := printf "%s%s" $fullname "-analytics-worker-1-service" }}
   {{- $analyticsWorkerService2 := printf "%s%s" $fullname "-analytics-worker-2-service" }}
-  {{- range $path, $byte := .Files.Glob "confs/is/deployment/server/eventpublishers/*" }}
+  {{- range $path, $byte := .Files.Glob "confs/is/repository/deployment/server/eventpublishers/*" }}
   {{- $list := $path | splitList "/"}}
   {{- $length := len $list }}
   {{- $last := add $length -1 }}

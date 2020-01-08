@@ -26,13 +26,21 @@ spec:
       port: 9091
       targetPort: 9091
       protocol: TCP
+#    - name: siddhi-1
+#      port: 7070
+#      targetPort: 8082
+#      protocol: TCP
+#    - name: siddhi-2
+#      port: 7443
+#      targetPort: 11501
+#      protocol: TCP
     - name: siddhi-1
       port: 7070
-      targetPort: 8082
+      targetPort: 7070
       protocol: TCP
     - name: siddhi-2
       port: 7443
-      targetPort: 11501
+      targetPort: 7443
       protocol: TCP
     - name: data-reciver-1
       port: 7612

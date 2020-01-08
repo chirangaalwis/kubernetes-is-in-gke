@@ -21,7 +21,7 @@ wso2:
     # For advanced details on configuring WSO2 Carbon data sources, please see the official documentation (https://docs.wso2.com/display/ADMIN44x/Working+with+Databases).
     db:
       type: postgresql
-      host: wso2-rdbms-service-postgresql
+      host: 35.184.22.59
       port: "5432"
       username: wso2carbon
       password: wso2carbon
@@ -30,6 +30,7 @@ wso2:
       sharedDB: WSO2IS_SHARED_DB
 
     wso2is:
+      hostname: "development.edge.services.joulecma.ca"
       # If a custom image must be used, uncomment 'dockerRegistry' and provide its value.
       dockerRegistry: "gcr.io/research-n-development-209206"
       imageName: "wso2is"

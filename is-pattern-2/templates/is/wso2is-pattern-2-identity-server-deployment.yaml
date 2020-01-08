@@ -40,15 +40,12 @@ spec:
       {{- if and .Values.wso2.deployment.db.host (.Values.wso2.deployment.db.port) }}
       - name: init-iam-db
         image: busybox:1.31
-        command: ['sh', '-c', 'echo -e "Checking for the availability of DBMS service"; while ! nc -z {{ .Values.wso2.deployment.db.host }} {{ .Values.wso2.deployment.db.port }}; do sleep 1; printf "-"; done; echo -e "  >> DBMS service is available";']
+        command: ['sh', '-c', 'echo -e "Checking for the availability of DBMS service"; while ! nc -w 10 -z {{ .Values.wso2.deployment.db.host }} {{ .Values.wso2.deployment.db.port }}; do sleep 1; printf "-"; done; echo -e "  >> DBMS service is available";']
       {{- end }}
 
-      - name: init-analytics-1
+      - name: init-analytics-worker
         image: busybox:1.31
-        command: ['sh', '-c', 'echo -e "Checking for the availability of Analytics Server 1 deployment"; while ! nc -z {{ template "fullname" . }}-analytics-worker-1-service 9091; do sleep 1; printf "-"; done; echo -e "  >> Analytics Server 1 has started";']
-      - name: init-analytics-2
-        image: busybox:1.31
-        command: ['sh', '-c', 'echo -e "Checking for the availability of Analytics Server 2 deployment"; while ! nc -z {{ template "fullname" . }}-analytics-worker-2-service 9091; do sleep 1; printf "-"; done; echo -e "  >> Analytics Server 2 has started";']
+        command: ['sh', '-c', 'echo -e "Checking for the availability of Analytics Server Worker profile deployment"; while ! nc -w 10 -z {{ template "fullname" . }}-analytics-worker-1-service 7443 && ! nc -w 10 -z {{ template "fullname" . }}-analytics-worker-2-service 7443; do sleep 1; printf "-"; done; echo -e "  >> Analytics Server Worker profile has started";']
 
       {{ if .Values.wso2.centralizedLogging.enabled }}
       - name: init-logstash-plugins-install
@@ -64,7 +61,7 @@ spec:
             mountPath: /usr/share/logstash/plugins/
       - name: init-elasticsearch
         image: busybox:1.31
-        command: ['sh', '-c', 'echo -e "Checking for the availability of Elasticsearch Server deployment"; while ! nc -z {{ .Values.wso2.centralizedLogging.logstash.elasticsearch.host }} 9200; do sleep 1; printf "-"; done; echo -e "  >> Elasticsearch server has started";']
+        command: ['sh', '-c', 'echo -e "Checking for the availability of Elasticsearch Server deployment"; while ! nc -w 10 -z {{ .Values.wso2.centralizedLogging.logstash.elasticsearch.host }} 9200; do sleep 1; printf "-"; done; echo -e "  >> Elasticsearch server has started";']
       {{ end }}
 
       {{ if .Values.wso2.monitoring.enabled }}

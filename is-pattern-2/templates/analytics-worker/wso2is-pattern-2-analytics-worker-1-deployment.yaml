@@ -117,7 +117,7 @@ spec:
             command:
             - /bin/sh
             - -c
-            - nc -z localhost 9091
+            - nc -z localhost 7443
           initialDelaySeconds: {{ .Values.wso2.deployment.wso2isAnalyticsWorker1.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.wso2.deployment.wso2isAnalyticsWorker1.readinessProbe.periodSeconds }}
         lifecycle:

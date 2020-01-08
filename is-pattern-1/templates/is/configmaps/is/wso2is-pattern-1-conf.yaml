@@ -18,7 +18,7 @@ metadata:
   name: wso2is-pattern-1-conf
   namespace : {{ .Release.Namespace }}
 data:
-  {{- $hostname := .Release.Name }}
+  {{- $hostname := .Values.wso2.deployment.wso2is.hostname }}
   # generate connection URL of shared database based on the DBMS type
   {{- $shared_dburl := "" }}
   # set relevant DBMS driver class name

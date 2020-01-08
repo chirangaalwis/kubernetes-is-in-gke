@@ -32,7 +32,7 @@ spec:
     metadata:
       labels:
         deployment: wso2is
-        monitoring: jmx
+        monitoring: {{ .Values.wso2.monitoring.prometheus.jmxJobName }}
     spec:
       initContainers:
       {{- if and .Values.wso2.deployment.db.host (.Values.wso2.deployment.db.port) }}
