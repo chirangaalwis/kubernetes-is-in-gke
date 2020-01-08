@@ -18,11 +18,11 @@ metadata:
   name: {{ template "fullname" . }}-identity-server-deployment
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: {{ .Values.wso2.deployment.wso2is.replicas }}
+  replicas: {{ .Values.wso2.deployment.is.replicas }}
   strategy:
     rollingUpdate:
-      maxSurge: {{ .Values.wso2.deployment.wso2is.strategy.rollingUpdate.maxSurge }}
-      maxUnavailable: {{ .Values.wso2.deployment.wso2is.strategy.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ .Values.wso2.deployment.is.strategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.wso2.deployment.is.strategy.rollingUpdate.maxUnavailable }}
     type: RollingUpdate
   selector:
     matchLabels:
@@ -80,14 +80,14 @@ spec:
 
       containers:
       - name: wso2is
-        {{ if .Values.wso2.deployment.wso2is.dockerRegistry }}
-        image: {{ .Values.wso2.deployment.wso2is.dockerRegistry }}/{{ .Values.wso2.deployment.wso2is.imageName }}
-        {{- $tag := .Values.wso2.deployment.wso2is.imageTag }}
+        {{ if .Values.wso2.deployment.is.dockerRegistry }}
+        image: {{ .Values.wso2.deployment.is.dockerRegistry }}/{{ .Values.wso2.deployment.is.imageName }}
+        {{- $tag := .Values.wso2.deployment.is.imageTag }}
         {{- if not (eq $tag "") }}{{- printf ":%s" $tag -}}{{- end }}
         {{ else if or (eq .Values.wso2.subscription.username "") (eq .Values.wso2.subscription.password "") }}
-        image: wso2/{{ .Values.wso2.deployment.wso2is.imageName }}:{{ .Values.wso2.deployment.wso2is.imageTag }}
+        image: wso2/{{ .Values.wso2.deployment.is.imageName }}:{{ .Values.wso2.deployment.is.imageTag }}
         {{ else }}
-        image: docker.wso2.com/{{ .Values.wso2.deployment.wso2is.imageName }}:{{ .Values.wso2.deployment.wso2is.imageTag }}
+        image: docker.wso2.com/{{ .Values.wso2.deployment.is.imageName }}:{{ .Values.wso2.deployment.is.imageTag }}
         {{ end }}
         livenessProbe:
           exec:
@@ -95,25 +95,25 @@ spec:
               - /bin/sh
               - -c
               - nc -z localhost 9443
-          initialDelaySeconds: {{ .Values.wso2.deployment.wso2is.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.wso2.deployment.wso2is.livenessProbe.periodSeconds }}
+          initialDelaySeconds: {{ .Values.wso2.deployment.is.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.wso2.deployment.is.livenessProbe.periodSeconds }}
         readinessProbe:
           exec:
             command:
               - /bin/sh
               - -c
               - nc -z localhost 9443
-          initialDelaySeconds: {{ .Values.wso2.deployment.wso2is.readinessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.wso2.deployment.wso2is.readinessProbe.periodSeconds }}
-        imagePullPolicy: {{ .Values.wso2.deployment.wso2is.imagePullPolicy }}
+          initialDelaySeconds: {{ .Values.wso2.deployment.is.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.wso2.deployment.is.readinessProbe.periodSeconds }}
+        imagePullPolicy: {{ .Values.wso2.deployment.is.imagePullPolicy }}
         command: ["/home/wso2carbon/entrypoint.sh"]
         resources:
           requests:
-            memory: {{ .Values.wso2.deployment.wso2is.resources.requests.memory }}
-            cpu: {{ .Values.wso2.deployment.wso2is.resources.requests.cpu }}
+            memory: {{ .Values.wso2.deployment.is.resources.requests.memory }}
+            cpu: {{ .Values.wso2.deployment.is.resources.requests.cpu }}
           limits:
-            memory: {{ .Values.wso2.deployment.wso2is.resources.limits.memory }}
-            cpu: {{ .Values.wso2.deployment.wso2is.resources.limits.cpu }}
+            memory: {{ .Values.wso2.deployment.is.resources.limits.memory }}
+            cpu: {{ .Values.wso2.deployment.is.resources.limits.cpu }}
         lifecycle:
           preStop:
             exec:
@@ -219,9 +219,9 @@ spec:
 #            mountPath: /secrets/cloudsql
 #            readOnly: true
       serviceAccountName: {{ .Values.kubernetes.serviceAccount }}
-      {{- if .Values.wso2.deployment.wso2is.imagePullSecrets }}
+      {{- if .Values.wso2.deployment.is.imagePullSecrets }}
       imagePullSecrets:
-      - name: {{ .Values.wso2.deployment.wso2is.imagePullSecrets }}
+      - name: {{ .Values.wso2.deployment.is.imagePullSecrets }}
       {{- else if and (not (eq .Values.wso2.subscription.username "")) (not (eq .Values.wso2.subscription.password "")) }}
       imagePullSecrets:
       - name: {{ template "fullname" . }}-wso2-private-registry-creds

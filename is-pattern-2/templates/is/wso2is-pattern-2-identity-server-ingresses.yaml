@@ -24,9 +24,9 @@ metadata:
 spec:
   tls:
     - hosts:
-        - {{ .Values.wso2.deployment.wso2is.hostname }}
+        - {{ .Values.wso2.deployment.is.hostname }}
   rules:
-    - host: {{ .Values.wso2.deployment.wso2is.hostname }}
+    - host: {{ .Values.wso2.deployment.is.hostname }}
       http:
         paths:
           - path: /authorization(/|$)(.*)
@@ -47,9 +47,9 @@ metadata:
 spec:
   tls:
     - hosts:
-        - {{ .Values.wso2.deployment.wso2is.hostname }}
+        - {{ .Values.wso2.deployment.is.hostname }}
   rules:
-    - host: {{ .Values.wso2.deployment.wso2is.hostname }}
+    - host: {{ .Values.wso2.deployment.is.hostname }}
       http:
         paths:
           - path: /
@@ -73,9 +73,9 @@ metadata:
 spec:
   tls:
     - hosts:
-        - mgt.{{ .Values.wso2.deployment.wso2is.hostname }}
+        - mgt.{{ .Values.wso2.deployment.is.hostname }}
   rules:
-    - host: mgt.{{ .Values.wso2.deployment.wso2is.hostname }}
+    - host: mgt.{{ .Values.wso2.deployment.is.hostname }}
       http:
         paths:
           - path: /

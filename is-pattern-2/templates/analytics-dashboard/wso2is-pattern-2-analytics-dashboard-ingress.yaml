@@ -23,9 +23,9 @@ metadata:
 spec:
   tls:
   - hosts:
-    - {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.hostname }}
+    - {{ .Values.wso2.deployment.analytics.dashboard.hostname }}
   rules:
-  - host: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.hostname }}
+  - host: {{ .Values.wso2.deployment.analytics.dashboard.hostname }}
     http:
       paths:
       - path: /

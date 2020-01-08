@@ -18,11 +18,11 @@ metadata:
   name: {{ template "fullname" . }}-analytics-dashboard-deployment
   namespace : {{ .Release.Namespace }}
 spec:
-  replicas: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.replicas }}
+  replicas: {{ .Values.wso2.deployment.analytics.dashboard.replicas }}
   strategy:
     rollingUpdate:
-      maxSurge: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.strategy.rollingUpdate.maxSurge }}
-      maxUnavailable: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.strategy.rollingUpdate.maxUnavailable }}
+      maxSurge: {{ .Values.wso2.deployment.analytics.dashboard.strategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.wso2.deployment.analytics.dashboard.strategy.rollingUpdate.maxUnavailable }}
     type: RollingUpdate
   selector:
     matchLabels:
@@ -76,16 +76,16 @@ spec:
 
       containers:
       - name: wso2is-analytics-dashboard
-        {{- if .Values.wso2.deployment.wso2isAnalyticsDashboard.dockerRegistry }}
-        image: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.dockerRegistry }}/{{ .Values.wso2.deployment.wso2isAnalyticsDashboard.imageName }}
-        {{- $tag := .Values.wso2.deployment.wso2isAnalyticsDashboard.imageTag }}
+        {{- if .Values.wso2.deployment.analytics.dashboard.dockerRegistry }}
+        image: {{ .Values.wso2.deployment.analytics.dashboard.dockerRegistry }}/{{ .Values.wso2.deployment.analytics.dashboard.imageName }}
+        {{- $tag := .Values.wso2.deployment.analytics.dashboard.imageTag }}
         {{- if not (eq $tag "") }}{{- printf ":%s" $tag -}}{{- end }}
         {{- else if or (eq .Values.wso2.subscription.username "") (eq .Values.wso2.subscription.password "") }}
-        image: wso2/{{ .Values.wso2.deployment.wso2isAnalyticsDashboard.imageName }}:{{ .Values.wso2.deployment.wso2isAnalyticsDashboard.imageTag }}
+        image: wso2/{{ .Values.wso2.deployment.analytics.dashboard.imageName }}:{{ .Values.wso2.deployment.analytics.dashboard.imageTag }}
         {{- else }}
-        image: docker.wso2.com/{{ .Values.wso2.deployment.wso2isAnalyticsDashboard.imageName }}:{{ .Values.wso2.deployment.wso2isAnalyticsDashboard.imageTag }}
+        image: docker.wso2.com/{{ .Values.wso2.deployment.analytics.dashboard.imageName }}:{{ .Values.wso2.deployment.analytics.dashboard.imageTag }}
         {{- end }}
-        imagePullPolicy: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.imagePullPolicy }}
+        imagePullPolicy: {{ .Values.wso2.deployment.analytics.dashboard.imagePullPolicy }}
         ports:
         -
           containerPort: 9643
@@ -101,23 +101,23 @@ spec:
             - /bin/sh
             - -c
             - nc -z localhost 9643
-          initialDelaySeconds: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.livenessProbe.periodSeconds }}
+          initialDelaySeconds: {{ .Values.wso2.deployment.analytics.dashboard.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.wso2.deployment.analytics.dashboard.livenessProbe.periodSeconds }}
         readinessProbe:
           exec:
             command:
             - /bin/sh
             - -c
             - nc -z localhost 9643
-          initialDelaySeconds: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.readinessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.readinessProbe.periodSeconds }}
+          initialDelaySeconds: {{ .Values.wso2.deployment.analytics.dashboard.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.wso2.deployment.analytics.dashboard.readinessProbe.periodSeconds }}
         resources:
           requests:
-            memory: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.resources.requests.memory }}
-            cpu: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.resources.requests.cpu }}
+            memory: {{ .Values.wso2.deployment.analytics.dashboard.resources.requests.memory }}
+            cpu: {{ .Values.wso2.deployment.analytics.dashboard.resources.requests.cpu }}
           limits:
-            memory: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.resources.limits.memory }}
-            cpu: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.resources.limits.cpu }}
+            memory: {{ .Values.wso2.deployment.analytics.dashboard.resources.limits.memory }}
+            cpu: {{ .Values.wso2.deployment.analytics.dashboard.resources.limits.cpu }}
         volumeMounts:
         - name: wso2is-pattern-2-analytics-dashboard-conf
           mountPath: "/home/wso2carbon/wso2-config-volume/conf/dashboard"
@@ -167,9 +167,9 @@ spec:
           value: {{ .Values.wso2.centralizedLogging.logstash.elasticsearch.host }}
       {{ end }}
       serviceAccountName: {{ .Values.kubernetes.serviceAccount }}
-      {{- if .Values.wso2.deployment.wso2isAnalyticsDashboard.imagePullSecrets }}
+      {{- if .Values.wso2.deployment.analytics.dashboard.imagePullSecrets }}
       imagePullSecrets:
-      - name: {{ .Values.wso2.deployment.wso2isAnalyticsDashboard.imagePullSecrets }}
+      - name: {{ .Values.wso2.deployment.analytics.dashboard.imagePullSecrets }}
       {{- else if and (not (eq .Values.wso2.subscription.username "")) (not (eq .Values.wso2.subscription.password "")) }}
       imagePullSecrets:
       - name: {{ template "fullname" . }}-wso2-private-registry-creds
