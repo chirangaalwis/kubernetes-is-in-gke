@@ -36,3 +36,5 @@ COPY --chown=wso2carbon:wso2 ${FILES}/org.wso2.carbon.identity.application.authe
 # copy customized web applications
 COPY --chown=wso2carbon:wso2 ${FILES}/accountrecoveryendpoint.war ${WSO2_SERVER_HOME}/repository/deployment/server/webapps/
 COPY --chown=wso2carbon:wso2 ${FILES}/authenticationendpoint.war ${WSO2_SERVER_HOME}/repository/deployment/server/webapps/
+# copy resource files
+COPY --chown=wso2carbon:wso2 ${FILES}/oauth_response.html ${WSO2_SERVER_HOME}/repository/resources/identity/pages/

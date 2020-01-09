@@ -201,7 +201,7 @@
     <OAuth2ErrorPage>${carbon.protocol}://${carbon.host}/authorization/authenticationendpoint/oauth2_error.do</OAuth2ErrorPage>
     <OIDCConsentPage>${carbon.protocol}://${carbon.host}/authorization/authenticationendpoint/oauth2_consent.do</OIDCConsentPage>
     <OIDCLogoutConsentPage>${carbon.protocol}://${carbon.host}/authorization/authenticationendpoint/oauth2_logout_consent.do</OIDCLogoutConsentPage>
-    <OIDCLogoutPage>${carbon.protocol}://${carbon.host}/authorization/authenticationendpoint/oauth2_logout.do</OIDCLogoutPage>
+    <OIDCLogoutPage>https://services.cma.ca/cma/public/oauth/logout.form?redirect_url=https://www.cma.ca</OIDCLogoutPage>
 
     <OIDCWebFingerEPUrl>${carbon.protocol}://${carbon.host}/authorization/.well-known/webfinger</OIDCWebFingerEPUrl>
 
@@ -420,7 +420,7 @@
       <UserInfoEndpointRequestValidator>org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInforRequestDefaultValidator</UserInfoEndpointRequestValidator>
       <UserInfoEndpointAccessTokenValidator>org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoISAccessTokenValidator</UserInfoEndpointAccessTokenValidator>
       <UserInfoEndpointResponseBuilder>org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoJSONResponseBuilder</UserInfoEndpointResponseBuilder>
-      <SkipUserConsent>false</SkipUserConsent>
+      <SkipUserConsent>true</SkipUserConsent>
       <!-- Sign the ID Token with Service Provider Tenant Private Key-->
       <SignJWTWithSPKey>true</SignJWTWithSPKey>
       <!-- Add tenant domain to 'realm' claim of ID Token-->
