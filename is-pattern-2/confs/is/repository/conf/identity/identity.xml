@@ -420,7 +420,7 @@
       <UserInfoEndpointRequestValidator>org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInforRequestDefaultValidator</UserInfoEndpointRequestValidator>
       <UserInfoEndpointAccessTokenValidator>org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoISAccessTokenValidator</UserInfoEndpointAccessTokenValidator>
       <UserInfoEndpointResponseBuilder>org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoJSONResponseBuilder</UserInfoEndpointResponseBuilder>
-      <SkipUserConsent>true</SkipUserConsent>
+      <SkipUserConsent>false</SkipUserConsent>
       <!-- Sign the ID Token with Service Provider Tenant Private Key-->
       <SignJWTWithSPKey>true</SignJWTWithSPKey>
       <!-- Add tenant domain to 'realm' claim of ID Token-->
