@@ -198,7 +198,7 @@ c. Try navigating to `https://<RELEASE_NAME>/carbon` and `https://<RELEASE_NAME>
 Centralized logging with Logstash and Elasticsearch is diabled by default. However, if it is required to be enabled, 
 the following steps should be followed.
 
-1. Set `centralizedLogging.enabled` to `true` in the [values.yaml](values.yaml) file.
+1. Set `centralizedLogging.enabled` to `true` in the [values.yaml](values-dev.yaml) file.
 2. Add elasticsearch Helm repository to download sub-charts required for Centralized logging.
 ```
 helm repo add elasticsearch https://helm.elastic.co
@@ -216,7 +216,7 @@ dependencies:
     condition: wso2.centralizedLogging.enabled
 
 ```
-4. Add override configurations for Elasticsearch in the [values.yaml](values.yaml) file.
+4. Add override configurations for Elasticsearch in the [values.yaml](values-dev.yaml) file.
 ```
 wso2:
   ( ... )

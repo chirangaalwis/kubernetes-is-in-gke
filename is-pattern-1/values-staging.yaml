@@ -26,9 +26,9 @@ wso2:
       port: "5432"
       username: wso2carbon
       password: wso2carbon
-      bpsDB: WSO2IS_BPS_DB_STG
-      identityDB: WSO2IS_IDENTITY_DB_STG
-      sharedDB: WSO2IS_SHARED_DB_STG
+      bpsDB: WSO2IS_BPS_DB_DEV
+      identityDB: WSO2IS_IDENTITY_DB_DEV
+      sharedDB: WSO2IS_SHARED_DB_DEV
 
     is:
       hostname: ""

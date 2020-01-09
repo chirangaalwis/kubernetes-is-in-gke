@@ -43,10 +43,6 @@ spec:
         command: ['sh', '-c', 'echo -e "Checking for the availability of DBMS service"; while ! nc -w 10 -z {{ .Values.wso2.deployment.db.host }} {{ .Values.wso2.deployment.db.port }}; do sleep 1; printf "-"; done; echo -e "  >> DBMS service is available";']
       {{- end }}
 
-      - name: init-analytics-worker
-        image: busybox:1.31
-        command: ['sh', '-c', 'echo -e "Checking for the availability of Analytics Server Worker profile deployment"; while ! nc -w 10 -z {{ template "fullname" . }}-analytics-worker-1-service 7443 && ! nc -w 10 -z {{ template "fullname" . }}-analytics-worker-2-service 7443; do sleep 1; printf "-"; done; echo -e "  >> Analytics Server Worker profile has started";']
-
       {{ if .Values.wso2.centralizedLogging.enabled }}
       - name: init-logstash-plugins-install
         image: docker.elastic.co/logstash/logstash:{{ .Values.wso2.centralizedLogging.logstash.imageTag }}
