@@ -38,7 +38,7 @@ wso2:
       # If a custom image must be used, uncomment 'dockerRegistry' and provide its value.
       dockerRegistry: "gcr.io/research-n-development-209206"
       imageName: "wso2is"
-      imageTag: "5.8.0-postgresql-ksm1.7.0"
+      imageTag: "5.8.0-postgresql"
       # Number of deployment replicas
       replicas: 1
       strategy:
