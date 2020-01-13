@@ -166,6 +166,17 @@ spec:
         - name: ELASTICSEARCH_HOST
           value: {{ .Values.wso2.centralizedLogging.logstash.elasticsearch.host }}
       {{ end }}
+
+      - name: cloudsql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.11
+        command: ["/cloud_sql_proxy",
+                  "-instances=research-n-development-209206:us-central1:wso2-iam-postgresql-instance=tcp:5432",
+                  "-credential_file=/secrets/cloudsql/credentials.json"]
+        volumeMounts:
+          - name: cloudsql-instance-credentials
+            mountPath: /secrets/cloudsql
+            readOnly: true
+
       serviceAccountName: {{ .Values.kubernetes.serviceAccount }}
       {{- if .Values.wso2.deployment.analytics.dashboard.imagePullSecrets }}
       imagePullSecrets:
@@ -175,6 +186,11 @@ spec:
       - name: {{ template "fullname" . }}-wso2-private-registry-creds
       {{ end }}
       volumes:
+
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
+
       - name: wso2is-pattern-2-analytics-dashboard-conf
         configMap:
           name: {{ template "fullname" . }}-analytics-dashboard-conf

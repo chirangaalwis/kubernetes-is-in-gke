@@ -22,7 +22,7 @@ wso2:
     # For advanced details on configuring WSO2 Carbon data sources, please see the official documentation (https://docs.wso2.com/display/ADMIN44x/Working+with+Databases).
     db:
       type: postgresql
-      host: <DBMS_HOSTNAME>
+      host: wso2is-pattern-2-cloudsql-proxy-service
       port: "5432"
       username: wso2carbon
       password: wso2carbon
@@ -32,6 +32,12 @@ wso2:
       analyticsDB: WSO2IS_ANALYTICS_DB
       clusterDB: WSO2IS_ANALYTICS_CLUSTER_DB
       persistenceDB: WSO2IS_ANALYTICS_PERSISTENCE_DB
+
+    persistRuntimeArtifacts:
+      enabled: false
+      nfsServerIP: "<NFS_SERVER_IP>"
+      sharedTenantsPath: ""
+      sharedUserStoresPath: ""
 
     is:
       hostname: ""

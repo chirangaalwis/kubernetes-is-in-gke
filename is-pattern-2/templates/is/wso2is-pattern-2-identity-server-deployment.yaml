@@ -156,6 +156,14 @@ spec:
           mountPath: /home/wso2carbon/wso2-config-volume/repository/deployment/server/jaggeryapps/portal/conf
         - name: wso2is-pattern-2-webapps-shindig-properties
           mountPath: /home/wso2carbon/wso2-config-volume/repository/deployment/server/webapps/shindig/WEB-INF/classes
+
+        {{- if .Values.wso2.deployment.persistRuntimeArtifacts.enabled }}
+        - name: wso2is-pattern-2-identity-server-shared-tenants
+          mountPath: /home/wso2carbon/wso2is-5.8.0/repository/tenants
+        - name: wso2is-pattern-2-identity-server-shared-userstores
+          mountPath: /home/wso2carbon/wso2is-5.8.0/repository/deployment/server/userstores
+        {{ end }}
+
         - name: wso2is-pattern-2-entrypoint
           mountPath: /home/wso2carbon/entrypoint.sh
           subPath: docker-entrypoint.sh
@@ -209,15 +217,17 @@ spec:
           - name: ELASTICSEARCH_HOST
             value: {{ .Values.wso2.centralizedLogging.logstash.elasticsearch.host }}
       {{ end }}
-#      - name: cloudsql-proxy
-#        image: gcr.io/cloudsql-docker/gce-proxy:1.11
-#        command: ["/cloud_sql_proxy",
-#                  "-instances=<INSTANCE_CONNECTION_NAME>=tcp:5432",
-#                  "-credential_file=/secrets/cloudsql/credentials.json"]
-#        volumeMounts:
-#          - name: cloudsql-instance-credentials
-#            mountPath: /secrets/cloudsql
-#            readOnly: true
+
+      - name: cloudsql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.11
+        command: ["/cloud_sql_proxy",
+                  "-instances=research-n-development-209206:us-central1:wso2-iam-postgresql-instance=tcp:5432",
+                  "-credential_file=/secrets/cloudsql/credentials.json"]
+        volumeMounts:
+          - name: cloudsql-instance-credentials
+            mountPath: /secrets/cloudsql
+            readOnly: true
+
       serviceAccountName: {{ .Values.kubernetes.serviceAccount }}
       {{- if .Values.wso2.deployment.is.imagePullSecrets }}
       imagePullSecrets:
@@ -227,9 +237,11 @@ spec:
       - name: {{ template "fullname" . }}-wso2-private-registry-creds
       {{ end }}
       volumes:
-#      - name: cloudsql-instance-credentials
-#        secret:
-#          secretName: cloudsql-instance-credentials
+
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
+
       - name: wso2is-pattern-2-bin-startup
         configMap:
           name: {{ template "fullname" . }}-bin-startup
@@ -267,6 +279,16 @@ spec:
         configMap:
           name: {{ template "fullname" . }}-identity-server-entrypoint
           defaultMode: 0407
+
+      {{- if .Values.wso2.deployment.persistRuntimeArtifacts.enabled }}
+      - name: wso2is-pattern-2-identity-server-shared-tenants
+        persistentVolumeClaim:
+          claimName: {{ template "fullname" . }}-identity-server-shared-tenants-pvc
+      - name: wso2is-pattern-2-identity-server-shared-userstores
+        persistentVolumeClaim:
+          claimName: {{ template "fullname" . }}-identity-server-shared-userstores-pvc
+      {{ end }}
+
       {{ if .Values.wso2.centralizedLogging.enabled }}
       - name: shared-logs
         emptyDir: {}
